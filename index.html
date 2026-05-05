@@ -877,7 +877,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
         <div class="pz-icon">📷</div>
         <div class="pz-title">Фото ТН (лицевая)</div>
         <div class="pz-sub">Нажмите для открытия камеры</div>
-        <input type="file" id="tn-photo-front" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(this, 'tn-front')">
+        <input type="file" id="tn-photo-front" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotoUpload(this, 'tn-front')">
       </div>
       <div id="tn-front-preview" style="display:none;margin-bottom:8px;">
         <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="tn-front-img">
@@ -886,7 +886,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
         <div class="pz-icon">📄</div>
         <div class="pz-title">Фото ТН (оборотная)</div>
         <div class="pz-sub">Необязательно</div>
-        <input type="file" id="tn-photo-back" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(this, 'tn-back')">
+        <input type="file" id="tn-photo-back" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotoUpload(this, 'tn-back')">
       </div>
       <div id="tn-back-preview" style="display:none;margin-bottom:8px;">
         <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="tn-back-img">
@@ -1088,7 +1088,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
       <div class="photo-zone" onclick="document.getElementById('mix-tn-photo').click()">
         <div class="pz-icon">📷</div>
         <div class="pz-title">Фото ТН</div>
-        <input type="file" id="mix-tn-photo" accept="image/*" style="display:none" onchange="handlePhotoUpload(this, 'mix-tn')">
+        <input type="file" id="mix-tn-photo" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotoUpload(this, 'mix-tn')">
       </div>
       <div id="mix-tn-preview" style="display:none;margin-bottom:8px;">
         <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="mix-tn-img">
@@ -1096,7 +1096,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
       <div class="photo-zone" onclick="document.getElementById('mix-raport-photo').click()">
         <div class="pz-icon">📄</div>
         <div class="pz-title">Фото рапорт-наряда</div>
-        <input type="file" id="mix-raport-photo" accept="image/*" style="display:none" onchange="handlePhotoUpload(this, 'mix-raport')">
+        <input type="file" id="mix-raport-photo" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotoUpload(this, 'mix-raport')">
       </div>
       <div id="mix-raport-preview" style="display:none;margin-bottom:8px;">
         <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="mix-raport-img">
@@ -1282,7 +1282,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
         <div class="pz-icon">📎</div>
         <div class="pz-title">Добавить ТН</div>
         <div class="pz-sub">Можно до 5 накладных, 2 фото каждая</div>
-        <input type="file" id="dln-tn-photo" accept="image/*" style="display:none" onchange="handlePhotoUpload(this, 'dln-tn')">
+        <input type="file" id="dln-tn-photo" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotoUpload(this, 'dln-tn')">
       </div>
       <div id="dln-tn-preview" style="display:none;margin-bottom:8px;">
         <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="dln-tn-img">
@@ -1395,7 +1395,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
         <div class="pz-icon">🧾</div>
         <div class="pz-title">Сфотографировать чек</div>
         <div class="pz-sub">Можно несколько фото</div>
-        <input type="file" id="fuel-check-photo" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(this, 'fuel-check')">
+        <input type="file" id="fuel-check-photo" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotoUpload(this, 'fuel-check')">
       </div>
       <div id="fuel-check-preview" style="display:none;margin-bottom:8px;">
         <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="fuel-check-img">
@@ -1521,7 +1521,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
         <div class="pz-icon">🧾</div>
         <div class="pz-title">Сфотографировать чек</div>
         <div class="pz-sub">Можно несколько фото</div>
-        <input type="file" id="expense-check-photo" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(this, 'expense-check')">
+        <input type="file" id="expense-check-photo" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotoUpload(this, 'expense-check')">
       </div>
       <div id="expense-check-preview" style="display:none;margin-bottom:8px;">
         <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="expense-check-img">
@@ -2401,7 +2401,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
         <div class="pz-icon">🧾</div>
         <div class="pz-title">Сфотографировать чек</div>
         <div class="pz-sub">Нажмите для открытия камеры</div>
-        <input type="file" id="parts-check-photo" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(this, 'parts-check')">
+        <input type="file" id="parts-check-photo" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotoUpload(this, 'parts-check')">
       </div>
       <div id="parts-check-preview" style="display:none;margin-bottom:8px;">
         <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="parts-check-img">
@@ -2900,7 +2900,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
         <div class="pz-icon">🧾</div>
         <div class="pz-title">Сфотографировать чек</div>
         <div class="pz-sub">Обязательно для подтверждения</div>
-        <input type="file" id="mech-fuel-check" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(this, 'mech-fuel')">
+        <input type="file" id="mech-fuel-check" accept="image/*" capture="environment" multiple style="display:none" onchange="handlePhotoUpload(this, 'mech-fuel')">
       </div>
       <div id="mech-fuel-preview" style="display:none;margin-bottom:8px;">
         <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="mech-fuel-img">
@@ -3342,12 +3342,27 @@ function showSub(subId){
     window.scrollTo(0,0);
   } catch(e) { console.error('showSub error:',e); }
 }
+// When leaving a sub-screen (back or post-submit), drop the photos accumulated
+// in __photoStore so the next time the form opens it is clean.
+var __SUB_PHOTO_KEYS = {
+  'ton-new': ['tn-front', 'tn-back'],
+  'mix-new': ['mix-tn', 'mix-raport'],
+  'dln-new': ['dln-tn'],
+  'parts-new': ['parts-check'],
+  'dt-new': ['fuel-check'],
+  'exp-new': ['expense-check'],
+  'mech-fuel-new': ['mech-fuel']
+};
 function hideSub(menuId,subId){
   try {
     var m=document.getElementById(menuId);
     if(m) m.style.display='block';
     var s=document.getElementById(subId);
     if(s) s.classList.remove('active');
+    var keys = __SUB_PHOTO_KEYS[subId];
+    if (keys && typeof clearPhotos === 'function') {
+      keys.forEach(function(k){ clearPhotos(k); });
+    }
     window.scrollTo(0,0);
   } catch(e) { console.error('hideSub error:',e); }
 }
@@ -4550,8 +4565,8 @@ function submitTonarTrip(btn){
     object: getFieldValue(blocks[9]),
     load_tonnage: loadTonnage,
     unload_tonnage: unloadTonnage,
-    tn_front: getPreviewImageSrc('tn-front-img'),
-    tn_back: getPreviewImageSrc('tn-back-img'),
+    tn_front: getPhotoArray('tn-front'),
+    tn_back: getPhotoArray('tn-back'),
     paid: (document.getElementById('ton-paid') && document.getElementById('ton-paid').checked) ? 'Да' : 'Нет',
     status: 'ok'
   };
@@ -4668,8 +4683,8 @@ function submitMixerTrip(btn){
     payment_type: getFieldValue(blocks[11]),
     money_with: getFieldValue(blocks[12]),
     tn_number: inputs[8] ? inputs[8].value : '',
-    tn_photo: getPreviewImageSrc('mix-tn-img'),
-    report_photo: getPreviewImageSrc('mix-raport-img'),
+    tn_photo: getPhotoArray('mix-tn'),
+    report_photo: getPhotoArray('mix-raport'),
     paid: (document.getElementById('mix-paid') && document.getElementById('mix-paid').checked) ? 'Да' : 'Нет',
     cash_received: (document.getElementById('mix-cash-received') && document.getElementById('mix-cash-received').value) || '',
     status: 'ok'
@@ -4830,7 +4845,7 @@ function submitDlinnTrip(btn){
     from: [fromCity, fromAddr].filter(Boolean).join(', '),
     to: [toCity, toAddr].filter(Boolean).join(', '),
     cargo: [cargoInput ? cargoInput.value.trim() : '', qtyInput ? qtyInput.value.trim() : '', getFieldValue(blocks[7])].filter(Boolean).join(' '),
-    tn_photo: getPreviewImageSrc('dln-tn-img'),
+    tn_photo: getPhotoArray('dln-tn'),
     paid: (document.getElementById('dln-paid') && document.getElementById('dln-paid').checked) ? 'Да' : 'Нет',
     status: 'ok'
   };
@@ -4861,7 +4876,7 @@ function submitDlinnFuel(btn){
     cost: liters && pricePerLiter ? Math.round(liters * pricePerLiter * 100) / 100 : '',
     price_per_liter: pricePerLiter || '',
     station: getFieldValue(blocks[5]),
-    receipt_photo: getPreviewImageSrc('fuel-check-img'),
+    receipt_photo: getPhotoArray('fuel-check'),
     comment: getFieldValue(blocks[1]) ? ('\u0412\u043e\u0434\u0438\u0442\u0435\u043b\u044c: ' + getFieldValue(blocks[1])) : ''
   };
 
@@ -4887,7 +4902,7 @@ function submitDlinnExpense(btn){
     category: getFieldValue(blocks[3]),
     amount: amountInput ? amountInput.value.trim() : '',
     description: descInput ? descInput.value.trim() : '',
-    photo: getPreviewImageSrc('expense-check-img'),
+    photo: getPhotoArray('expense-check'),
     comment: [
       getFieldValue(blocks[0]) ? ('\u041c\u0430\u0448\u0438\u043d\u0430: ' + getFieldValue(blocks[0])) : '',
       getFieldValue(blocks[1]) ? ('\u0412\u043e\u0434\u0438\u0442\u0435\u043b\u044c: ' + getFieldValue(blocks[1])) : '',
@@ -5003,7 +5018,7 @@ function submitPartsPurchase(btn){
       debtForms[1] ? ('\u0421\u0440\u043e\u043a \u043e\u043f\u043b\u0430\u0442\u044b: ' + getFieldValue(debtForms[1])) : '',
       getFieldValue(blocks[6]) ? ('\u0420\u0435\u043c\u043e\u043d\u0442: ' + getFieldValue(blocks[6])) : ''
     ].filter(Boolean).join(' | '),
-    receipt_photo: getPreviewImageSrc('parts-check-img')
+    receipt_photo: getPhotoArray('parts-check')
   };
 
   sendToAPI('dlinn_parts', data, function(res){
@@ -5025,7 +5040,7 @@ function submitMechFuel(){
     fuel_cost: inputs[1] ? inputs[1].value : '',
     fuel_price_per_liter: inputs[2] ? inputs[2].value : '',
     fuel_station: (document.querySelector('#mech-fuel-new .chip.on')||{}).textContent.trim() || '',
-    receipt_photo: getPreviewImageSrc('mech-fuel-img'),
+    receipt_photo: getPhotoArray('mech-fuel'),
     rate: '6000'
   };
 
@@ -5106,37 +5121,63 @@ function autofillTonForm() {
 }
 
 // ═══════════════════ ЗАГРУЗКА ФОТО ═══════════════════
+// Multi-photo store: each form's photo zone keeps an array of compressed
+// data URLs keyed by `type` (e.g. 'mix-tn'). Submit handlers read via
+// getPhotoArray(type) and the backend accepts list[str] for those fields.
+var __photoStore = {};
+
 function handlePhotoUpload(input, type) {
-  var file = input.files[0];
-  if (!file) return;
-  compressImageFile(file, function(imageData) {
-    var previewId, imgId;
-    if (type === 'tn-front') {
-      previewId = 'tn-front-preview'; imgId = 'tn-front-img';
-    } else if (type === 'tn-back') {
-      previewId = 'tn-back-preview'; imgId = 'tn-back-img';
-    } else if (type === 'mix-tn') {
-      previewId = 'mix-tn-preview'; imgId = 'mix-tn-img';
-    } else if (type === 'mix-raport') {
-      previewId = 'mix-raport-preview'; imgId = 'mix-raport-img';
-    } else if (type === 'dln-tn') {
-      previewId = 'dln-tn-preview'; imgId = 'dln-tn-img';
-    } else if (type === 'fuel-check') {
-      previewId = 'fuel-check-preview'; imgId = 'fuel-check-img';
-    } else if (type === 'expense-check') {
-      previewId = 'expense-check-preview'; imgId = 'expense-check-img';
-    } else if (type === 'parts-check') {
-      previewId = 'parts-check-preview'; imgId = 'parts-check-img';
-    } else if (type === 'service-check') {
-      previewId = 'service-check-preview'; imgId = 'service-check-img';
-    } else if (type === 'mech-fuel') {
-      previewId = 'mech-fuel-preview'; imgId = 'mech-fuel-img';
-    }
-    if (previewId && imgId) {
-      document.getElementById(imgId).src = imageData;
-      document.getElementById(previewId).style.display = 'block';
-    }
+  var files = input.files ? Array.prototype.slice.call(input.files) : [];
+  if (!files.length) return;
+  if (!__photoStore[type]) __photoStore[type] = [];
+  var pending = files.length;
+  files.forEach(function(file) {
+    compressImageFile(file, function(imageData) {
+      if (imageData) __photoStore[type].push(imageData);
+      pending--;
+      if (pending === 0) renderPhotoPreview(type);
+    });
   });
+  // Allow re-selecting the same file later (esp. on iOS camera capture).
+  input.value = '';
+}
+
+function renderPhotoPreview(type) {
+  var preview = document.getElementById(type + '-preview');
+  if (!preview) return;
+  var photos = __photoStore[type] || [];
+  if (!photos.length) {
+    preview.style.display = 'none';
+    preview.innerHTML = '';
+    return;
+  }
+  var html = '<div style="display:flex;flex-wrap:wrap;gap:8px;">';
+  photos.forEach(function(src, i) {
+    html += '<div style="position:relative;width:88px;height:88px;flex-shrink:0;">'
+      + '<img src="' + src + '" style="width:100%;height:100%;object-fit:cover;border-radius:var(--r);border:1px solid var(--sep);">'
+      + '<button type="button" onclick="removePhoto(\'' + type + '\',' + i + ')" '
+      + 'style="position:absolute;top:-6px;right:-6px;width:24px;height:24px;border-radius:50%;border:1px solid var(--sep-strong);background:rgba(0,0,0,.85);color:#fff;font-size:14px;line-height:22px;cursor:pointer;padding:0;">×</button>'
+      + '</div>';
+  });
+  html += '</div><div style="font-size:11px;color:var(--t4);margin-top:6px;">'
+    + photos.length + ' фото · нажмите зону выше, чтобы добавить ещё</div>';
+  preview.innerHTML = html;
+  preview.style.display = 'block';
+}
+
+function removePhoto(type, index) {
+  if (!__photoStore[type]) return;
+  __photoStore[type].splice(index, 1);
+  renderPhotoPreview(type);
+}
+
+function clearPhotos(type) {
+  __photoStore[type] = [];
+  renderPhotoPreview(type);
+}
+
+function getPhotoArray(type) {
+  return (__photoStore[type] || []).slice();
 }
 
 function normalizeVoiceText(text) {
