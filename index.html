@@ -769,6 +769,19 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
     <button class="back-btn" onclick="hideSub('ton-menu','ton-new')">‹ Тонары</button>
     <div class="page-title" style="margin-bottom:20px">Новый рейс</div>
 
+    <div class="form-block">
+      <div class="form-lbl">Дата рейса</div>
+      <div class="chips">
+        <button class="chip on" onclick="setDate('ton-date','today',this)">Сегодня</button>
+        <button class="chip" onclick="setDate('ton-date','yesterday',this)">Вчера</button>
+        <button class="chip" onclick="setDate('ton-date','pick',this)">Выбрать</button>
+      </div>
+      <div class="date-display" id="ton-date-display">
+        <span class="date-lbl">Дата</span>
+        <span class="date-val" id="ton-date-val">—</span>
+      </div>
+      <div class="calendar-wrap" id="ton-date-cal"></div>
+    </div>
 
     <div class="form-block">
       <div class="form-lbl">Автомобиль</div>
@@ -928,6 +941,20 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
   <div class="sub-screen" id="mix-new">
     <button class="back-btn" onclick="hideSub('mix-menu','mix-new')">‹ Миксеры</button>
     <div class="page-title" style="margin-bottom:20px">Новый рейс</div>
+
+    <div class="form-block">
+      <div class="form-lbl">Дата рейса</div>
+      <div class="chips">
+        <button class="chip on" onclick="setDate('mix-date','today',this)">Сегодня</button>
+        <button class="chip" onclick="setDate('mix-date','yesterday',this)">Вчера</button>
+        <button class="chip" onclick="setDate('mix-date','pick',this)">Выбрать</button>
+      </div>
+      <div class="date-display" id="mix-date-display">
+        <span class="date-lbl">Дата</span>
+        <span class="date-val" id="mix-date-val">—</span>
+      </div>
+      <div class="calendar-wrap" id="mix-date-cal"></div>
+    </div>
 
     <div class="form-block">
       <div class="form-lbl">Автомобиль</div>
@@ -4519,22 +4546,22 @@ function submitTonarTrip(btn){
   // Собрать данные из формы
   var form = btn.closest('.sub-screen');
   var blocks = form.querySelectorAll('.form-block');
-  var loadInput = blocks[9] ? blocks[9].querySelector('.inp') : null;
-  var unloadInput = blocks[10] ? blocks[10].querySelector('.inp') : null;
+  var loadInput = blocks[10] ? blocks[10].querySelector('.inp') : null;
+  var unloadInput = blocks[11] ? blocks[11].querySelector('.inp') : null;
   var loadTonnage = loadInput ? loadInput.value : '';
   var unloadTonnage = unloadInput ? unloadInput.value : '';
 
   var now = new Date();
   var data = {
-    date: now.toLocaleDateString('ru'),
+    date: dateState['ton-date'] || now.toLocaleDateString('ru'),
     time: now.toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'}),
-    driver: getFieldValue(blocks[2]),
-    truck: getFieldValue(blocks[1]),
-    quarry: getFieldValue(blocks[4]),
-    material: getFieldValue(blocks[3]),
-    fraction: getFieldValue(blocks[5]),
-    client: getFieldValue(blocks[7]),
-    object: getFieldValue(blocks[8]),
+    driver: getFieldValue(blocks[3]),
+    truck: getFieldValue(blocks[2]),
+    quarry: getFieldValue(blocks[5]),
+    material: getFieldValue(blocks[4]),
+    fraction: getFieldValue(blocks[6]),
+    client: getFieldValue(blocks[8]),
+    object: getFieldValue(blocks[9]),
     load_tonnage: loadTonnage,
     unload_tonnage: unloadTonnage,
     tn_front: getPreviewImageSrc('tn-front-img'),
@@ -4639,21 +4666,21 @@ function submitMixerTrip(btn){
   var blocks = form.querySelectorAll('.form-block');
 
   var data = {
-    date: new Date().toLocaleDateString('ru'),
+    date: dateState['mix-date'] || new Date().toLocaleDateString('ru'),
     arrive_time: inputs[2] ? inputs[2].value : '',
     depart_time: inputs[3] ? inputs[3].value : '',
-    driver: getFieldValue(blocks[1]),
-    truck: getFieldValue(blocks[0]),
-    plant: getFieldValue(blocks[2]),
-    mix_type: getFieldValue(blocks[3]),
-    grade: getFieldValue(blocks[4]),
+    driver: getFieldValue(blocks[2]),
+    truck: getFieldValue(blocks[1]),
+    plant: getFieldValue(blocks[3]),
+    mix_type: getFieldValue(blocks[4]),
+    grade: getFieldValue(blocks[5]),
     volume: inputs[4] ? inputs[4].value : '',
-    client: getFieldValue(blocks[7]),
+    client: getFieldValue(blocks[8]),
     address: inputs[5] ? inputs[5].value : '',
     concrete_cost: inputs[6] ? inputs[6].value : '',
     delivery_cost: inputs[7] ? inputs[7].value : '',
-    payment_type: getFieldValue(blocks[10]),
-    money_with: getFieldValue(blocks[11]),
+    payment_type: getFieldValue(blocks[11]),
+    money_with: getFieldValue(blocks[12]),
     tn_number: inputs[8] ? inputs[8].value : '',
     tn_photo: getPreviewImageSrc('mix-tn-img'),
     report_photo: getPreviewImageSrc('mix-raport-img'),
