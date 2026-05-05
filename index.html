@@ -2397,10 +2397,14 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
 
     <div class="form-block">
       <div class="form-lbl">Фото чека / документа</div>
-      <div class="photo-zone" onclick="alert('Сфотографировать чек')">
+      <div class="photo-zone" onclick="document.getElementById('parts-check-photo').click()">
         <div class="pz-icon">🧾</div>
         <div class="pz-title">Сфотографировать чек</div>
-        <div class="pz-sub">Можно несколько фото</div>
+        <div class="pz-sub">Нажмите для открытия камеры</div>
+        <input type="file" id="parts-check-photo" accept="image/*" capture="environment" style="display:none" onchange="handlePhotoUpload(this, 'parts-check')">
+      </div>
+      <div id="parts-check-preview" style="display:none;margin-bottom:8px;">
+        <img style="width:100%;border-radius:var(--r);border:1px solid var(--sep);" id="parts-check-img">
       </div>
     </div>
 
@@ -4998,7 +5002,8 @@ function submitPartsPurchase(btn){
       getFieldValue(blocks[3]) ? ('\u041f\u043e\u0441\u0442\u0430\u0432\u0449\u0438\u043a: ' + getFieldValue(blocks[3])) : '',
       debtForms[1] ? ('\u0421\u0440\u043e\u043a \u043e\u043f\u043b\u0430\u0442\u044b: ' + getFieldValue(debtForms[1])) : '',
       getFieldValue(blocks[6]) ? ('\u0420\u0435\u043c\u043e\u043d\u0442: ' + getFieldValue(blocks[6])) : ''
-    ].filter(Boolean).join(' | ')
+    ].filter(Boolean).join(' | '),
+    receipt_photo: getPreviewImageSrc('parts-check-img')
   };
 
   sendToAPI('dlinn_parts', data, function(res){
