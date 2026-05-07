@@ -2099,7 +2099,7 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
       <div class="btn-body"><div class="btn-title">Открыть ремонт</div><div class="btn-sub">Новый заказ-наряд</div></div>
       <span class="chevron">›</span>
     </button>
-    <button class="big-btn dark" onclick="showSub('svc-active')">
+    <button class="big-btn dark" onclick="openSvcActive()">
       <div class="btn-ico">🔧</div>
       <div class="btn-body"><div class="btn-title">Активные ремонты</div><div class="btn-sub" id="svc-active-counter">—</div></div>
       <span class="chevron">›</span>
@@ -3828,6 +3828,14 @@ function submitRepairExpense(btn){
   });
 }
 
+function openSvcActive(){
+  // Показать суб-экран сразу, но обновить список из сервера, а не из кэша.
+  var list = document.getElementById('svc-active-list');
+  if (list) list.innerHTML = '<div class="card" style="text-align:center;color:var(--t4);font-size:13px;padding:24px;">Загрузка…</div>';
+  showSub('svc-active');
+  if (typeof loadServiceLists === 'function') loadServiceLists();
+}
+
 function loadServiceLists(){
   apiRequest('get_recent_repairs', {}).then(function(res){
     if (res.status !== 'ok') return;
@@ -4962,7 +4970,10 @@ function submitServiceRepair(btn){
   sendToAPI('dlinn_repair', data, function(res){
     showNotification('\u0420\u0435\u043c\u043e\u043d\u0442 \u043e\u0442\u043a\u0440\u044b\u0442' + (res.id ? ' (' + res.id + ')' : ''));
     finish('\u2705 \u0421\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u043e!', 'var(--green)', 1200);
-    setTimeout(function(){ hideSub('svc-menu','svc-open'); }, 1200);
+    setTimeout(function(){
+      hideSub('svc-menu','svc-open');
+      if (typeof loadServiceLists === 'function') loadServiceLists();
+    }, 1200);
   }, function(){
     showNotification('\u041e\u0448\u0438\u0431\u043a\u0430 \u043e\u0442\u043f\u0440\u0430\u0432\u043a\u0438 \u0440\u0435\u043c\u043e\u043d\u0442\u0430');
     finish('\u274c \u041e\u0448\u0438\u0431\u043a\u0430', '', 1800);
