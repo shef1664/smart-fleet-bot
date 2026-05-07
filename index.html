@@ -2418,17 +2418,17 @@ div:has(> .period-btn) > .period-btn{scroll-snap-align:start;}
       <div class="form-lbl">Форма оплаты</div>
       <div style="display:flex;flex-direction:column;gap:10px;">
         <label class="pay-toggle-row">
-          <input type="checkbox" id="pay-nal" onchange="togglePartsDebt(event)">
+          <input type="radio" name="parts-payment" id="pay-nal" onchange="togglePartsDebt(event)">
           <span class="pay-toggle-label">Нал</span>
           <span class="pay-toggle-hint">оплачено наличными</span>
         </label>
         <label class="pay-toggle-row">
-          <input type="checkbox" id="pay-beznal" onchange="togglePartsDebt(event)">
+          <input type="radio" name="parts-payment" id="pay-beznal" onchange="togglePartsDebt(event)">
           <span class="pay-toggle-label">Безнал</span>
           <span class="pay-toggle-hint">оплачено картой / переводом</span>
         </label>
         <label class="pay-toggle-row">
-          <input type="checkbox" id="pay-dolg" onchange="togglePartsDebt(event)">
+          <input type="radio" name="parts-payment" id="pay-dolg" onchange="togglePartsDebt(event)">
           <span class="pay-toggle-label">В долг</span>
           <span class="pay-toggle-hint">оплата позже</span>
         </label>
@@ -3332,9 +3332,23 @@ var __SUB_PHOTO_KEYS = {
 function hideSub(menuId,subId){
   try {
     var m=document.getElementById(menuId);
-    if(m) m.style.display='block';
+    if(m) {
+      // Если menu — это другой sub-screen (как svc-card в случае svc-add-work),
+      // вернуть его через .active, а не через inline display:block — иначе
+      // последующий hideSub('svc-menu','svc-card') оставит inline display и
+      // svc-card не скроется.
+      if (m.classList && m.classList.contains('sub-screen')) {
+        m.classList.add('active');
+        m.style.display = '';
+      } else {
+        m.style.display = 'block';
+      }
+    }
     var s=document.getElementById(subId);
-    if(s) s.classList.remove('active');
+    if(s) {
+      s.classList.remove('active');
+      s.style.display = '';
+    }
     var keys = __SUB_PHOTO_KEYS[subId];
     if (keys && typeof clearPhotos === 'function') {
       keys.forEach(function(k){ clearPhotos(k); });
@@ -3735,10 +3749,9 @@ function _currentRepairTruck(){
 }
 
 function _openRepairSub(subId){
-  // Скрыть карточку ремонта вручную (showSub полагается на previousElementSibling
-  // и не справится для svc-add-expense, чей prev — svc-add-work).
+  // svc-card сам — sub-screen, переключим .active.
   var card = document.getElementById('svc-card');
-  if (card) card.style.display = 'none';
+  if (card) card.classList.remove('active');
   var sub = document.getElementById(subId);
   if (sub) sub.classList.add('active');
   window.scrollTo(0, 0);
@@ -4168,7 +4181,8 @@ function addMechShift(dateStr) {
       return;
     }
   }
-  mechState.shifts.push({ date: dateStr, pay: 6000 });
+  var entry = { date: dateStr, pay: 6000 };
+  mechState.shifts.push(entry);
   mechState.shifts.sort(function(a, b) {
     const da = a.date.split('.').reverse().join('');
     const db = b.date.split('.').reverse().join('');
@@ -4177,6 +4191,13 @@ function addMechShift(dateStr) {
   renderMechShifts();
   sendToAPI('mechanic_record', { type: 'shift', date: dateStr, rate: 6000 }, function(){
     showNotification('Смена ' + dateStr + ' сохранена');
+    if (typeof loadMechanicDashboard === 'function') loadMechanicDashboard();
+  }, function(){
+    // Откат оптимистичного апдейта если бэкенд не принял
+    var idx = mechState.shifts.indexOf(entry);
+    if (idx >= 0) mechState.shifts.splice(idx, 1);
+    renderMechShifts();
+    showNotification('Не удалось сохранить смену — попробуйте ещё раз');
   });
 }
 
@@ -4253,10 +4274,17 @@ function requestAdvance() {
   if (!amount || isNaN(amount) || Number(amount) <= 0) return;
   const num = Number(amount);
   const today = new Date().toLocaleDateString('ru');
-  mechState.advances.push({ date: today, amount: num });
+  var entry = { date: today, amount: num };
+  mechState.advances.push(entry);
   renderMechAdvances();
   sendToAPI('mechanic_record', { type: 'advance', date: today, advance_amount: num }, function(){
     showNotification('Аванс ₽' + num.toLocaleString() + ' сохранён');
+    if (typeof loadMechanicDashboard === 'function') loadMechanicDashboard();
+  }, function(){
+    var idx = mechState.advances.indexOf(entry);
+    if (idx >= 0) mechState.advances.splice(idx, 1);
+    renderMechAdvances();
+    showNotification('Не удалось сохранить аванс — попробуйте ещё раз');
   });
 }
 
@@ -4277,17 +4305,9 @@ function renderMechAdvances() {
   recalcMechSalary();
 }
 
-function togglePartsDebt(ev){
-  // Эксклюзивный выбор: Нал / Безнал / Долг — только один.
-  var ids = ['pay-nal','pay-beznal','pay-dolg'];
-  if (ev && ev.target && ev.target.checked) {
-    ids.forEach(function(id){
-      if (id !== ev.target.id) {
-        var el = document.getElementById(id);
-        if (el) el.checked = false;
-      }
-    });
-  }
+function togglePartsDebt(){
+  // Радио parts-payment гарантирует эксклюзивность; нам нужно только
+  // показать/скрыть блок «Сумма долга / Срок оплаты».
   var dolg = document.getElementById('pay-dolg');
   var b = document.getElementById('parts-debt-block');
   if (b) b.style.display = (dolg && dolg.checked) ? 'block' : 'none';
@@ -5052,7 +5072,8 @@ function submitMechFuel(){
   var stationChip = document.querySelector('#mech-fuel-new .chip.on');
   var station = stationChip ? stationChip.textContent.trim() : '';
   // оптимистично обновим локальный список
-  mechState.fuels.push({ date: today, liters: liters, cost: cost, station: station });
+  var entry = { date: today, liters: liters, cost: cost, station: station };
+  mechState.fuels.push(entry);
   recalcMechSalary();
   var data = {
     date: today,
@@ -5069,7 +5090,12 @@ function submitMechFuel(){
     inputs.forEach(function(i){ if (i) i.value = ''; });
     if (typeof loadMechanicDashboard === 'function') loadMechanicDashboard();
     hideSub('mech-section-fuel-salary','mech-fuel-new');
-  }, function(){ showNotification('Ошибка сохранения заправки'); });
+  }, function(){
+    var idx = mechState.fuels.indexOf(entry);
+    if (idx >= 0) mechState.fuels.splice(idx, 1);
+    recalcMechSalary();
+    showNotification('Не удалось сохранить заправку — попробуйте ещё раз');
+  });
 }
 
 // (удалён дубликат markMechShift — рабочая версия определена выше: с pick-date и проверкой дубликата)
