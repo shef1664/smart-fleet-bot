@@ -4487,7 +4487,12 @@ function sendToAPI(action, data, onSuccess, onError) {
   }
 
   function fallbackToTelegram(errorLike) {
-    if (window.Telegram && window.Telegram.WebApp) {
+    // Telegram.WebApp.sendData имеет жёсткий лимит ~4КБ. Большие пейлоады
+    // (отчёт с base64-фото) обрезаются → сервер парсит мусор и теряет ссылки.
+    // Если payload тяжёлый — не делаем fallback, отдаём ошибку клиенту.
+    var heavy = false;
+    try { heavy = JSON.stringify(data || {}).length > 3000; } catch(e) {}
+    if (!heavy && window.Telegram && window.Telegram.WebApp) {
       Telegram.WebApp.sendData(JSON.stringify({action: action, data: data}));
       finishSuccess({fallback: true, offline: true});
       return true;
@@ -4496,11 +4501,23 @@ function sendToAPI(action, data, onSuccess, onError) {
     return false;
   }
 
+  // Размер payload: если есть фото — выключаем Telegram-fallback (у него лимит
+  // ~4КБ, base64-фотки в него не пролезут — данные обрежутся и рейс сохранится
+  // без ссылок). Таймаут также увеличен с 8 до 60с: загрузка нескольких фоток
+  // на Яндекс.Диск через сервер легко занимает 15-40 сек.
+  var payloadSize = 0;
+  try { payloadSize = JSON.stringify(data || {}).length; } catch(e) {}
+  var hasHeavyPayload = payloadSize > 3000;
+
   var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
   var timeoutId = setTimeout(function(){
-    fallbackToTelegram({status:'error', message:'API timeout'});
+    if (hasHeavyPayload) {
+      finishError({status:'error', message:'Превышено время отправки. Проверьте интернет и попробуйте ещё раз.'});
+    } else {
+      fallbackToTelegram({status:'error', message:'API timeout'});
+    }
     if (controller) controller.abort();
-  }, 8000);
+  }, 60000);
 
   // Server now requires verified Telegram WebApp identity on every call. Inject
   // initData (HMAC-signed by Telegram) and telegram_user_id for the server to
@@ -4779,10 +4796,14 @@ function compressImageFile(file, done) {
   img.onload = function() {
     var originalWidth = img.width || 1600;
     var originalHeight = img.height || 1600;
-    var maxLen = 48000;
-    var sizes = [1280, 1024, 900, 768, 640];
-    var qualities = [0.72, 0.6, 0.5, 0.42, 0.35];
+    // ~400 КБ JPEG base64 — нормальное читаемое фото ТТН с текстом.
+    // (Раньше было 48 КБ — фото ТТН не влезали и обнулялись в '' → ссылка
+    // в Sheets не появлялась, фото на Яндекс.Диск не уходило.)
+    var maxLen = 400000;
+    var sizes = [1600, 1280, 1024, 900, 768];
+    var qualities = [0.82, 0.72, 0.6, 0.5, 0.42];
     var result = '';
+    var lastCandidate = '';
 
     for (var s = 0; s < sizes.length && !result; s++) {
       for (var q = 0; q < qualities.length && !result; q++) {
@@ -4804,14 +4825,17 @@ function compressImageFile(file, done) {
         ctx.drawImage(img, 0, 0, width, height);
 
         var candidate = canvas.toDataURL('image/jpeg', qualities[q]);
+        lastCandidate = candidate; // самый сжатый вариант на случай fallback
         if (candidate.length <= maxLen) {
           result = candidate;
         }
       }
     }
 
+    // Если ни одна комбинация не влезла — отдаём самый сжатый вариант,
+    // лучше большое фото, чем пустота: пустая строка = потеря фото.
     if (!result) {
-      result = '';
+      result = lastCandidate || '';
     }
 
     URL.revokeObjectURL(objectUrl);
