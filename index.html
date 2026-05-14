@@ -4590,15 +4590,24 @@ function submitTonarTrip(btn){
   var loadTonnage = loadInput ? loadInput.value : '';
   var unloadTonnage = unloadInput ? unloadInput.value : '';
 
+  // Игнорировать значение в скрытом блоке — иначе залипший .chip.on отдаёт мусор
+  // (для песка читалась бы фракция «5-20», для щебня — модуль «1,5–2,0»).
+  function valIfVisible(b){
+    return (b && b.offsetParent !== null) ? getFieldValue(b) : '';
+  }
+  var material = getFieldValue(blocks[3]);
+  var fractionRaw = valIfVisible(blocks[5]);
+  var modulRaw    = valIfVisible(blocks[6]);
+
   var now = new Date();
   var data = {
     date: dateState['ton-date'] || now.toLocaleDateString('ru'),
     time: now.toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'}),
     truck:    getFieldValue(blocks[1]),
     driver:   getFieldValue(blocks[2]),
-    material: getFieldValue(blocks[3]),
+    material: material,
     quarry:   getFieldValue(blocks[4]),
-    fraction: getFieldValue(blocks[5]),
+    fraction: fractionRaw,
     client:   getFieldValue(blocks[7]),
     object:   getFieldValue(blocks[8]),
     load_tonnage: loadTonnage,
@@ -4606,7 +4615,8 @@ function submitTonarTrip(btn){
     tn_front: getPhotoArray('tn-front'),
     tn_back: getPhotoArray('tn-back'),
     paid: (document.getElementById('ton-paid') && document.getElementById('ton-paid').checked) ? 'Да' : 'Нет',
-    status: 'ok'
+    status: 'ok',
+    comment: modulRaw ? ('Модуль крупности: ' + modulRaw) : ''
   };
 
   sendToAPI('tonar_trip', data, function(res){
