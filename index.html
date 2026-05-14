@@ -4579,11 +4579,14 @@ function submitTonarTrip(btn){
   btn.textContent = '⏳ Отправка...';
   btn.disabled = true;
 
-  // Собрать данные из формы
+  // Собрать данные из формы.
+  // Порядок .form-block в DOM: 0:Дата, 1:Автомобиль, 2:Водитель, 3:Материал, 4:Карьер,
+  // 5:Фракция, 6:Модуль крупности (скрытый, но querySelectorAll его считает),
+  // 7:Заказчик, 8:Объект, 9:Тоннаж загрузки, 10:Тоннаж выгрузки, 11:Фото ТН.
   var form = btn.closest('.sub-screen');
   var blocks = form.querySelectorAll('.form-block');
-  var loadInput = blocks[10] ? blocks[10].querySelector('.inp') : null;
-  var unloadInput = blocks[11] ? blocks[11].querySelector('.inp') : null;
+  var loadInput = blocks[9] ? blocks[9].querySelector('.inp') : null;
+  var unloadInput = blocks[10] ? blocks[10].querySelector('.inp') : null;
   var loadTonnage = loadInput ? loadInput.value : '';
   var unloadTonnage = unloadInput ? unloadInput.value : '';
 
@@ -4591,13 +4594,13 @@ function submitTonarTrip(btn){
   var data = {
     date: dateState['ton-date'] || now.toLocaleDateString('ru'),
     time: now.toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'}),
-    driver: getFieldValue(blocks[3]),
-    truck: getFieldValue(blocks[2]),
-    quarry: getFieldValue(blocks[5]),
-    material: getFieldValue(blocks[4]),
-    fraction: getFieldValue(blocks[6]),
-    client: getFieldValue(blocks[8]),
-    object: getFieldValue(blocks[9]),
+    truck:    getFieldValue(blocks[1]),
+    driver:   getFieldValue(blocks[2]),
+    material: getFieldValue(blocks[3]),
+    quarry:   getFieldValue(blocks[4]),
+    fraction: getFieldValue(blocks[5]),
+    client:   getFieldValue(blocks[7]),
+    object:   getFieldValue(blocks[8]),
     load_tonnage: loadTonnage,
     unload_tonnage: unloadTonnage,
     tn_front: getPhotoArray('tn-front'),
@@ -4697,28 +4700,40 @@ function submitMixerTrip(btn){
   btn.textContent = '⏳ Отправка...';
   btn.disabled = true;
 
+  // Порядок .form-block в DOM:
+  // 0:Дата 1:Автомобиль 2:Водитель 3:Завод 4:Тип_смеси 5:Марка 6:ПМД 7:pmd-temp(скрытый)
+  // 8:Объём 9:Заказчик 10:Адрес 11:Время_прибытия 12:Время_убытия
+  // 13:Стоимость_бетона 14:Стоимость_доставки 15:Тип_расчёта 16:dengi(cash_received)
+  // 17:№ТН 18:Фото 19:Оплата
   var form = btn.closest('.sub-screen');
-  var inputs = form.querySelectorAll('.inp');
   var blocks = form.querySelectorAll('.form-block');
+  function inp(i){
+    var b = blocks[i];
+    if(!b) return '';
+    var el = b.querySelector('input.inp, .inp');
+    return el ? el.value : '';
+  }
 
   var data = {
     date: dateState['mix-date'] || new Date().toLocaleDateString('ru'),
-    arrive_time: inputs[2] ? inputs[2].value : '',
-    depart_time: inputs[3] ? inputs[3].value : '',
-    driver: getFieldValue(blocks[2]),
-    truck: getFieldValue(blocks[1]),
-    plant: getFieldValue(blocks[3]),
-    mix_type: getFieldValue(blocks[4]),
-    grade: getFieldValue(blocks[5]),
-    volume: inputs[4] ? inputs[4].value : '',
-    client: getFieldValue(blocks[8]),
-    address: inputs[5] ? inputs[5].value : '',
-    concrete_cost: inputs[6] ? inputs[6].value : '',
-    delivery_cost: inputs[7] ? inputs[7].value : '',
-    payment_type: getFieldValue(blocks[11]),
-    money_with: getFieldValue(blocks[12]),
-    tn_number: inputs[8] ? inputs[8].value : '',
-    tn_photo: getPhotoArray('mix-tn'),
+    truck:        getFieldValue(blocks[1]),
+    driver:       getFieldValue(blocks[2]),
+    plant:        getFieldValue(blocks[3]),
+    mix_type:     getFieldValue(blocks[4]),
+    grade:        getFieldValue(blocks[5]),
+    pmd:          getFieldValue(blocks[6]),
+    pmd_temp:     getFieldValue(blocks[7]),
+    volume:       inp(8),
+    client:       getFieldValue(blocks[9]),
+    address:      inp(10),
+    arrive_time:  inp(11),
+    depart_time:  inp(12),
+    concrete_cost: inp(13),
+    delivery_cost: inp(14),
+    payment_type: getFieldValue(blocks[15]),
+    money_with:   '',
+    tn_number:    inp(17),
+    tn_photo:     getPhotoArray('mix-tn'),
     report_photo: getPhotoArray('mix-raport'),
     paid: (document.getElementById('mix-paid') && document.getElementById('mix-paid').checked) ? 'Да' : 'Нет',
     cash_received: (document.getElementById('mix-cash-received') && document.getElementById('mix-cash-received').value) || '',
