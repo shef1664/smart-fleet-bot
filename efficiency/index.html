@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>Эффективность перевозок</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<!-- Efficiency Mini App — тёмная индастриал-палитра по образцу miniapp/index.html
+     основного бота PULSAR (те же токены --bg/--bg3/--t1/--accent). -->
+<style>
+:root{
+  --bg:#0E1116; --bg2:#181C24; --bg3:#1F242E; --bg4:#262C38;
+  --t1:#ECEEF1; --t2:#B6BBC4; --t3:#7A8290;
+  --accent:#FFB020; --accent-fg:#14181F;
+  --green:#34D17A; --red:#FF4D4D;
+  --sep:rgba(255,255,255,.08);
+  --r:8px; --r2:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{background:var(--bg);}
+body{font-family:-apple-system,'SF Pro Text',Roboto,sans-serif;color:var(--t1);padding:14px 14px 40px;
+  font-variant-numeric:tabular-nums;}
+h1{font-size:17px;margin-bottom:12px;letter-spacing:.2px;}
+.tabs{display:flex;gap:6px;margin-bottom:14px;}
+.tab{flex:1;text-align:center;padding:10px 0;background:var(--bg3);border:1px solid var(--sep);
+  border-radius:var(--r);color:var(--t2);font-size:13px;font-weight:600;cursor:pointer;}
+.tab.on{background:var(--accent);color:var(--accent-fg);border-color:var(--accent);}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.card{background:var(--bg3);border:1px solid var(--sep);border-radius:var(--r2);padding:12px;}
+.card .lbl{font-size:11px;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;}
+.card .val{font-size:19px;font-weight:700;margin-top:4px;}
+.val.pos{color:var(--green);} .val.neg{color:var(--red);} .val.acc{color:var(--accent);}
+h2{font-size:13px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin:18px 0 8px;}
+	.tbl-wrap{overflow-x:auto;border:1px solid var(--sep);border-radius:var(--r2);}
+	.actions{display:flex;gap:8px;margin:0 0 14px;}
+	.action{border:1px solid var(--sep);background:var(--bg3);color:var(--t1);border-radius:var(--r);
+	  padding:10px 12px;font-size:13px;font-weight:700;cursor:pointer;}
+table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:520px;}
+th,td{padding:8px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--sep);}
+th{background:var(--bg4);color:var(--t3);font-size:11px;text-transform:uppercase;}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--bg3);}
+th:first-child{background:var(--bg4);}
+tr:last-child td{border-bottom:none;}
+.pos{color:var(--green);} .neg{color:var(--red);}
+.row{display:flex;justify-content:space-between;padding:10px 12px;background:var(--bg3);
+  border:1px solid var(--sep);border-radius:var(--r);margin-bottom:6px;font-size:13.5px;}
+.muted{color:var(--t3);font-size:12.5px;padding:14px;text-align:center;}
+.note{color:var(--t3);font-size:11.5px;margin-top:14px;line-height:1.5;}
+#status{color:var(--t3);font-size:13px;padding:30px 0;text-align:center;}
+</style>
+</head>
+<body>
+<h1>🚛 Эффективность перевозок</h1>
+<div class="tabs" id="tabs">
+  <div class="tab on" data-p="today">Сегодня</div>
+  <div class="tab" data-p="week">Неделя</div>
+  <div class="tab" data-p="month">Месяц</div>
+</div>
+<div id="status">Загрузка…</div>
+<div id="content" style="display:none"></div>
+
+<script>
+var tg = window.Telegram && window.Telegram.WebApp;
+if (tg) { tg.ready(); tg.expand(); }
+var period = 'today';
+
+function fmt(n){ return Math.round(n || 0).toLocaleString('ru-RU'); }
+function esc(s){ var d = document.createElement('div'); d.textContent = String(s == null ? '' : s); return d.innerHTML; }
+
+function renderDriver(data){
+  var s = data.salary || {};
+  return '<div class="cards">' +
+    card('Зарплата за период', fmt(s.period_total) + ' ₽', 'acc') +
+    card('Всего начислено', fmt(s.total) + ' ₽', '') +
+    card('К выплате', fmt(s.unpaid) + ' ₽', s.unpaid > 0 ? 'pos' : '') +
+    '</div><div class="note">Вы видите только свою зарплату (' + esc(data.driver) + ').</div>';
+}
+
+function card(lbl, val, cls){
+  return '<div class="card"><div class="lbl">' + lbl + '</div><div class="val ' + cls + '">' + val + '</div></div>';
+}
+
+function renderDirector(data){
+  var st = data.stats || {};
+  var html = '<div class="actions"><button class="action" onclick="downloadXlsx()">XLSX</button></div>' +
+    '<div class="cards">' +
+    card('Доход', fmt(st.revenue) + ' ₽', 'acc') +
+    card('Прибыль', fmt(st.profit) + ' ₽', st.profit >= 0 ? 'pos' : 'neg') +
+    card('Расходы + ЗП', fmt((st.variable_expenses || 0) + (st.salary || 0)) + ' ₽', '') +
+    card('Маржа', (st.margin_pct || 0) + '% · пост. ' + fmt(st.fixed_allocated) + ' ₽', '') +
+    '</div>';
+
+  html += '<h2>Машины (рейтинг по прибыли)</h2>';
+  if (st.trucks && st.trucks.length) {
+    html += '<div class="tbl-wrap"><table><tr><th>Машина</th><th>Рейсы</th><th>Доход</th>' +
+	      '<th>Прибыль</th><th>Маржа</th><th>Км</th><th>₽/км</th><th>Шины км</th><th>Шины ₽/км</th><th>₽/т</th><th>₽/м³</th><th>т·км</th></tr>';
+	    st.trucks.forEach(function(t){
+	      html += '<tr><td>' + esc(t.truck) + '</td><td>' + t.trips + '</td><td>' + fmt(t.revenue) +
+	        '</td><td class="' + (t.profit >= 0 ? 'pos' : 'neg') + '">' + fmt(t.profit) + '</td><td>' +
+	        t.margin_pct + '%</td><td>' + fmt(t.km) + '</td><td>' + (t.cost_per_km || '—') + '</td><td>' +
+	        (t.tire_remaining_km ? fmt(t.tire_remaining_km) : '—') + '</td><td>' + (t.tire_cost_per_km || '—') + '</td><td>' +
+	        (t.rub_per_ton || '—') + '</td><td>' + (t.rub_per_m3 || '—') + '</td><td>' + fmt(t.tonne_km) + '</td></tr>';
+	    });
+    html += '</table></div>';
+  } else {
+    html += '<div class="muted">Нет рейсов за период</div>';
+  }
+
+  html += '<h2>Зарплаты</h2>';
+  if (data.salaries && data.salaries.length) {
+    data.salaries.forEach(function(s){
+      html += '<div class="row"><span>' + esc(s.driver) + '</span><span>' +
+        fmt(s.period_total) + ' ₽ · к выплате <b>' + fmt(s.unpaid) + ' ₽</b></span></div>';
+    });
+  } else {
+    html += '<div class="muted">Начислений нет — заполните лист «Ставки_Зарплата»</div>';
+  }
+
+  html += '<h2>Направления: топ / анти-топ</h2>';
+  var dirs = st.directions || [];
+  if (dirs.length) {
+    var show = dirs.slice(0, 3).concat(dirs.length > 3 ? dirs.slice(-2) : []);
+    show.forEach(function(d){
+      var delta = (d.delta === null || d.delta === undefined) ? 'эталона нет'
+        : (d.delta >= 0 ? '+' : '') + fmt(d.delta) + ' ₽ к эталону';
+      html += '<div class="row"><span>' + esc(d.route) + ' · ' + d.trips + ' р.</span>' +
+        '<span class="' + (d.delta >= 0 ? 'pos' : (d.delta === null ? '' : 'neg')) + '">' +
+        fmt(d.revenue) + ' ₽ · ' + delta + '</span></div>';
+    });
+  } else {
+    html += '<div class="muted">Нет данных по направлениям</div>';
+  }
+
+  html += '<div class="note">Период: ' + esc(st.date_from) + ' — ' + esc(st.date_to) +
+    '.<br>ℹ️ Пробег — ручной ввод одометра (Gelios не подключён). ' +
+    'Постоянные расходы распределены: сумма за месяц / дни месяца × дни периода.</div>';
+  return html;
+}
+
+function load(){
+  var statusEl = document.getElementById('status');
+  var contentEl = document.getElementById('content');
+  statusEl.style.display = 'block';
+  statusEl.textContent = 'Загрузка…';
+  contentEl.style.display = 'none';
+  fetch('/api/dashboard', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ init_data: tg ? tg.initData : '', period: period })
+  }).then(function(r){ return r.json(); }).then(function(data){
+    if (data.status !== 'ok') {
+      statusEl.textContent = data.message === 'forbidden' || data.message === 'unauthorized'
+        ? '⛔ Доступ закрыт. Откройте приложение из бота @truckskem_bot.'
+        : '⚠️ Ошибка загрузки: ' + (data.message || '');
+      return;
+    }
+    contentEl.innerHTML = data.role === 'driver' ? renderDriver(data) : renderDirector(data);
+    statusEl.style.display = 'none';
+    contentEl.style.display = 'block';
+  }).catch(function(){
+    statusEl.textContent = '⚠️ Нет связи с сервером. Попробуйте позже.';
+  });
+}
+
+function downloadXlsx(){
+  fetch('/api/export.xlsx', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ init_data: tg ? tg.initData : '', period: period })
+  }).then(function(r){
+    if (!r.ok) { throw new Error('export failed'); }
+    return r.blob();
+  }).then(function(blob){
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'efficiency-' + period + '.xlsx';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  }).catch(function(){
+    alert('Не удалось выгрузить XLSX');
+  });
+}
+
+document.getElementById('tabs').addEventListener('click', function(e){
+  var t = e.target.closest('.tab');
+  if (!t) return;
+  document.querySelectorAll('.tab').forEach(function(x){ x.classList.remove('on'); });
+  t.classList.add('on');
+  period = t.dataset.p;
+  load();
+});
+
+load();
+</script>
+</body>
+</html>
